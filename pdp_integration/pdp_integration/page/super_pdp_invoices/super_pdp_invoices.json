@@ -1,0 +1,21 @@
+{
+ "content": null,
+ "creation": "2026-01-01 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "PDP Integration",
+ "name": "super-pdp-invoices",
+ "owner": "Administrator",
+ "page_name": "super-pdp-invoices",
+ "roles": [
+  {"role": "System Manager"},
+  {"role": "Accounts Manager"},
+  {"role": "Accounts User"}
+ ],
+ "standard": "Yes",
+ "system_page": 0,
+ "title": "SuperPDP Invoices"
+}

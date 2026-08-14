@@ -1,0 +1,105 @@
+{
+ "actions": [],
+ "creation": "2026-01-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "superpdp_endpoint",
+  "column_break_endpoint",
+  "connection_status_html",
+  "section_break_seller",
+  "burgerqueen_client_id",
+  "burgerqueen_client_secret",
+  "section_break_buyer",
+  "tricatel_client_id",
+  "tricatel_client_secret",
+  "section_break_help",
+  "help_html"
+ ],
+ "fields": [
+  {
+   "default": "https://api.superpdp.tech",
+   "description": "Base URL of the SuperPDP API (matches SUPERPDP_ENDPOINT).",
+   "fieldname": "superpdp_endpoint",
+   "fieldtype": "Data",
+   "label": "SuperPDP Endpoint",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_endpoint",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "connection_status_html",
+   "fieldtype": "HTML",
+   "label": "Connection Status",
+   "options": "<div id=\"superpdp-connection-status\" class=\"text-muted\">Use the buttons above to test the connection.</div>"
+  },
+  {
+   "fieldname": "section_break_seller",
+   "fieldtype": "Section Break",
+   "label": "Seller Credentials (BurgerQueen)"
+  },
+  {
+   "description": "Matches SUPERPDP_BURGERQUEEN_CLIENT_ID",
+   "fieldname": "burgerqueen_client_id",
+   "fieldtype": "Data",
+   "label": "Seller Client ID"
+  },
+  {
+   "description": "Matches SUPERPDP_BURGERQUEEN_CLIENT_SECRET. Stored encrypted, never sent to the browser.",
+   "fieldname": "burgerqueen_client_secret",
+   "fieldtype": "Password",
+   "label": "Seller Client Secret"
+  },
+  {
+   "fieldname": "section_break_buyer",
+   "fieldtype": "Section Break",
+   "label": "Buyer Credentials (Tricatel)"
+  },
+  {
+   "description": "Matches SUPERPDP_TRICATEL_CLIENT_ID",
+   "fieldname": "tricatel_client_id",
+   "fieldtype": "Data",
+   "label": "Buyer Client ID"
+  },
+  {
+   "description": "Matches SUPERPDP_TRICATEL_CLIENT_SECRET. Stored encrypted, never sent to the browser.",
+   "fieldname": "tricatel_client_secret",
+   "fieldtype": "Password",
+   "label": "Buyer Client Secret"
+  },
+  {
+   "fieldname": "section_break_help",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "help_html",
+   "fieldtype": "HTML",
+   "options": "<p class=\"text-muted\">Credentials are stored encrypted on the server (Frappe's Password fieldtype, backed by __Auth) and are never included in any response sent to the browser. Get sandbox credentials at <a href=\"https://www.superpdp.tech\" target=\"_blank\" rel=\"noopener\">superpdp.tech</a>.</p>"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "PDP Integration",
+ "name": "Super PDP Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

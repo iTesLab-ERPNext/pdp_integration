@@ -1,0 +1,34 @@
+.superpdp-invoices .superpdp-table,
+.superpdp-console .superpdp-fn-table {
+	background: var(--card-bg, #fff);
+}
+
+.superpdp-invoices td,
+.superpdp-console td {
+	vertical-align: middle;
+}
+
+.superpdp-pre {
+	background: var(--control-bg, #f4f5f6);
+	border-radius: var(--border-radius, 6px);
+	padding: 8px 10px;
+	font-size: 12px;
+	max-height: 260px;
+	overflow: auto;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.superpdp-row-status {
+	display: inline-block;
+	min-width: 60px;
+}
+
+.superpdp-step {
+	border-bottom: 1px solid var(--border-color, #eee);
+	padding-bottom: 8px;
+}
+
+.superpdp-summary {
+	line-height: 1.4;
+}

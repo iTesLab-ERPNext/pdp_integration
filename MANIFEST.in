@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include pdp_integration *.css
+recursive-include pdp_integration *.csv
+recursive-include pdp_integration *.html
+recursive-include pdp_integration *.ico
+recursive-include pdp_integration *.js
+recursive-include pdp_integration *.json
+recursive-include pdp_integration *.md
+recursive-include pdp_integration *.png
+recursive-include pdp_integration *.py
+recursive-include pdp_integration *.svg
+recursive-include pdp_integration *.txt
+recursive-exclude pdp_integration *.pyc

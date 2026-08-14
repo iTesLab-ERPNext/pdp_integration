@@ -1,0 +1,168 @@
+{
+ "actions": [],
+ "autoname": "format:PDP-LOG-{#####}",
+ "creation": "2026-01-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "function_id",
+  "function_label",
+  "role",
+  "status",
+  "http_status",
+  "column_break_1",
+  "invoice_doctype",
+  "invoice",
+  "superpdp_invoice_id",
+  "executed_by",
+  "executed_on",
+  "section_break_1",
+  "request_summary",
+  "response",
+  "error"
+ ],
+ "fields": [
+  {
+   "fieldname": "function_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Function ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "function_label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Function",
+   "read_only": 1
+  },
+  {
+   "fieldname": "role",
+   "fieldtype": "Select",
+   "label": "Role",
+   "options": "Seller\nBuyer",
+   "read_only": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Success\nFailed\nPending",
+   "read_only": 1
+  },
+  {
+   "fieldname": "http_status",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "HTTP Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "invoice_doctype",
+   "fieldtype": "Select",
+   "label": "Invoice Type",
+   "options": "\nSales Invoice\nPurchase Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "invoice",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Invoice",
+   "options": "invoice_doctype",
+   "read_only": 1
+  },
+  {
+   "fieldname": "superpdp_invoice_id",
+   "fieldtype": "Data",
+   "label": "SuperPDP Invoice ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "executed_by",
+   "fieldtype": "Link",
+   "label": "Executed By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "executed_on",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Executed On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_1",
+   "fieldtype": "Section Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "request_summary",
+   "fieldtype": "Small Text",
+   "label": "Request Summary",
+   "read_only": 1
+  },
+  {
+   "fieldname": "response",
+   "fieldtype": "Code",
+   "label": "Response",
+   "options": "JSON",
+   "read_only": 1
+  },
+  {
+   "fieldname": "error",
+   "fieldtype": "Long Text",
+   "label": "Error",
+   "read_only": 1
+  }
+ ],
+ "in_create": 1,
+ "links": [],
+ "modified": "2026-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "PDP Integration",
+ "name": "Super PDP Invoice Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager"
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User"
+  }
+ ],
+ "sort_field": "executed_on",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "function_label",
+ "track_changes": 0
+}

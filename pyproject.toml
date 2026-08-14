@@ -1,0 +1,16 @@
+[project]
+name = "pdp_integration"
+authors = [
+    { name = "Your Organization", email = "dev@example.com" }
+]
+description = "SuperPDP (French e-invoicing PDP) integration for ERPNext"
+requires-python = ">=3.10"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+    "requests"
+]
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
