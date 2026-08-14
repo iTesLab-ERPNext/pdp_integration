@@ -61,6 +61,47 @@ into a place ERPNext can call it from, and wired up to real ERPNext data.
    state between steps (test invoice XML, uploaded invoice id) the same
    way the original scripts reused local files.
 
+## Sidebar / Desk menu
+
+Installing the app adds a **"PDP Integration"** entry to the Frappe
+Desk sidebar automatically - no manual setup step. This is a standard
+Workspace (`pdp_integration/pdp_integration/workspace/pdp_integration`),
+synced into the `Workspace` doctype the same way `bench install-app`
+syncs every other standard doc (Page, Report, DocType, ...), so it
+appears right after `bench --site <site> install-app pdp_integration`
+(the app's `after_install` hook also clears the desk cache so it shows
+up without a manual browser refresh cache-bust).
+
+It matches the same conventions ERPNext's own module workspaces use:
+
+- **Icon/style**: `octicon octicon-plug`, green indicator - the same
+  icon/color declared in `hooks.py` (`app_icon` / `app_color`), so the
+  sidebar entry and the app's own identity match.
+- **Structure**: a header, a short description, and one shortcut per
+  screen - Super PDP Settings, SuperPDP Invoices, SuperPDP Function
+  Console, and the Super PDP Invoice Log list - each shortcut using the
+  same icon language (gear for settings, list for logs, etc.) as other
+  workspace shortcuts in ERPNext.
+- **Permissions**: the workspace itself is restricted to the same roles
+  already enforced on the two Pages and the log doctype - **System
+  Manager**, **Accounts Manager**, **Accounts User** - via the
+  Workspace's `roles` table, so only those roles see it in their
+  sidebar at all; other users won't see a dead link.
+- **Navigation**: each shortcut routes exactly like ERPNext's own
+  shortcuts do - the Settings shortcut opens the Single doctype's Form
+  directly, the Invoice Log shortcut opens its List view, and the two
+  Page shortcuts open their respective pages - no extra clicks or
+  custom routing logic.
+
+If you ever need to customize the layout (add cards, reorder
+shortcuts, etc.), open the workspace in the Desk and use **Edit
+Workspace** - Frappe will keep your site's copy in sync with new
+releases of this app unless you explicitly detach it.
+
+For very old sites (pre-Workspace, Frappe < v13) there's also a
+`config/desktop.py` fallback using the same icon/color, so the module
+still shows up as a desktop icon on legacy desk versions.
+
 ## Installation
 
 This is a standard Frappe app - `bench get-app` needs either a git URL or
@@ -124,5 +165,3 @@ pdp_integration/
       super_pdp_invoices/          # Invoice interface
       super_pdp_function_console/  # Test every function
 ```
-# pdp_integration
-# pdp_integration
