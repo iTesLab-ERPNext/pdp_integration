@@ -100,6 +100,8 @@ class SuperPDPInvoicesPage {
 		}
 
 		this.$tbody.empty();
+		const can_send = this.invoice_doctype === "Sales Invoice";
+
 		invoices.forEach((inv) => {
 			const $row = $(`
 				<tr>
@@ -110,6 +112,7 @@ class SuperPDPInvoicesPage {
 					<td><span class="indicator ${status_color(inv.status)}">${frappe.utils.escape_html(inv.status || "")}</span></td>
 					<td>
 						<button class="btn btn-xs btn-primary btn-test">${__("Test with SuperPDP")}</button>
+						${can_send ? `<button class="btn btn-xs btn-success btn-send" style="margin-left: 4px;">${__("Send to SuperPDP")}</button>` : ""}
 						<span class="superpdp-row-status text-muted small" style="margin-left: 6px;"></span>
 					</td>
 				</tr>
@@ -118,6 +121,12 @@ class SuperPDPInvoicesPage {
 			$row.find(".btn-test").on("click", (e) => {
 				this.test_invoice(inv, $row, $(e.currentTarget));
 			});
+
+			if (can_send) {
+				$row.find(".btn-send").on("click", (e) => {
+					this.send_invoice(inv, $row, $(e.currentTarget));
+				});
+			}
 
 			this.$tbody.append($row);
 		});
@@ -151,7 +160,51 @@ class SuperPDPInvoicesPage {
 		});
 	}
 
-	show_result_dialog(invoice, result) {
+	send_invoice(invoice, $row, $btn) {
+		frappe.confirm(
+			__(
+				"This will call SuperPDP's Send Invoice function (07_send_invoice.js - POST /v1.beta/invoices) as the seller for {0}. Continue?",
+				[invoice.name]
+			),
+			() => this.do_send_invoice(invoice, $row, $btn)
+		);
+	}
+
+	do_send_invoice(invoice, $row, $btn) {
+		$btn.prop("disabled", true);
+		const $status = $row.find(".superpdp-row-status");
+		$status.html(`<i class="fa fa-spinner fa-spin"></i> ${__("Sending...")}`);
+
+		frappe.call({
+			method: "pdp_integration.invoices.send_invoice_to_superpdp",
+			args: { invoice_doctype: this.invoice_doctype, invoice_name: invoice.name },
+			callback: (r) => {
+				$btn.prop("disabled", false);
+				const result = r.message;
+				if (!result) {
+					$status.html(`<span class="indicator red">${__("No response")}</span>`);
+					return;
+				}
+				const ok = result.summary && result.summary.overall === "Success";
+				$status.html(
+					`<span class="indicator ${ok ? "green" : "red"}">${ok ? __("Sent") : __("Failed")}</span>`
+				);
+				if (ok && result.summary.superpdp_invoice_id) {
+					frappe.show_alert({
+						message: __("Sent to SuperPDP - invoice id {0}", [result.summary.superpdp_invoice_id]),
+						indicator: "green",
+					});
+				}
+				this.show_result_dialog(invoice, result, { title: __("SuperPDP Send Result: {0}", [invoice.name]) });
+			},
+			error: () => {
+				$btn.prop("disabled", false);
+				$status.html(`<span class="indicator red">${__("Error")}</span>`);
+			},
+		});
+	}
+
+	show_result_dialog(invoice, result, opts) {
 		const steps_html = (result.steps || [])
 			.map((step) => {
 				const color = step.ok ? "green" : "red";
@@ -169,7 +222,7 @@ class SuperPDPInvoicesPage {
 			.join("");
 
 		const d = new frappe.ui.Dialog({
-			title: __("SuperPDP Test Result: {0}", [invoice.name]),
+			title: (opts && opts.title) || __("SuperPDP Test Result: {0}", [invoice.name]),
 			size: "large",
 			fields: [
 				{
@@ -178,6 +231,11 @@ class SuperPDPInvoicesPage {
 					options: `
 						<div class="superpdp-summary text-muted small" style="margin-bottom: 10px;">
 							${frappe.utils.escape_html(result.summary && result.summary.note ? result.summary.note : "")}
+							${
+								result.summary && result.summary.superpdp_invoice_id
+									? `<div><strong>${__("SuperPDP Invoice ID")}:</strong> ${frappe.utils.escape_html(result.summary.superpdp_invoice_id)}</div>`
+									: ""
+							}
 						</div>
 						${steps_html}
 					`,

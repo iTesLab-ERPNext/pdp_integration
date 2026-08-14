@@ -15,6 +15,7 @@ result is fully auditable from the invoice's SuperPDP log.
 """
 
 import frappe
+from frappe import _
 from frappe.utils import flt
 
 from pdp_integration.superpdp_functions import (
@@ -24,6 +25,7 @@ from pdp_integration.superpdp_functions import (
 	run_validate_invoice,
 	run_buyer_token,
 	run_list_buyer_invoices,
+	run_send_invoice,
 )
 
 INVOICE_DOCTYPES = ("Sales Invoice", "Purchase Invoice")
@@ -166,6 +168,52 @@ def test_invoice_with_superpdp(invoice_doctype, invoice_name):
 		})
 
 	return {"role": role, "steps": steps, "summary": summary}
+
+
+@frappe.whitelist()
+def send_invoice_to_superpdp(invoice_doctype, invoice_name):
+	"""Runs SuperPDP function 07 (Send Invoice) for a Sales Invoice: the
+	seller role generates a fresh sandbox test invoice (function 04) and
+	sends it (POST /v1.beta/invoices), logging both steps against this
+	ERPNext invoice. Only meaningful for the seller side (Sales Invoice) -
+	a Purchase Invoice is something we *receive*, not something we send."""
+
+	if invoice_doctype != "Sales Invoice":
+		frappe.throw(_("Sending to SuperPDP is only available for Sales Invoices (seller role)."))
+
+	if not frappe.db.exists(invoice_doctype, invoice_name):
+		frappe.throw(f"{invoice_doctype} {invoice_name} not found")
+
+	frappe.has_permission(invoice_doctype, doc=invoice_name, throw=True)
+
+	steps = []
+	steps.append(_wrap_step(run_generate_invoice, invoice_doctype, invoice_name))
+	if steps[-1]["ok"]:
+		steps.append(_wrap_step(run_send_invoice, invoice_doctype, invoice_name))
+
+	invoice_doc = frappe.get_cached_doc(invoice_doctype, invoice_name)
+
+	superpdp_invoice_id = None
+	send_step = next((s for s in steps if s["function_id"] == "07_send_invoice"), None)
+	if send_step and send_step["ok"] and isinstance(send_step.get("response"), dict):
+		superpdp_invoice_id = send_step["response"].get("id")
+
+	summary = _build_summary(
+		steps,
+		extra={
+			"erpnext_invoice_amount": flt(invoice_doc.grand_total),
+			"erpnext_invoice_currency": invoice_doc.currency,
+			"superpdp_invoice_id": superpdp_invoice_id,
+			"note": (
+				"Generates a fresh SuperPDP sandbox test invoice and sends it "
+				"(POST /v1.beta/invoices) as the seller. This exercises the real "
+				"'send' call against the SuperPDP sandbox test invoice, not a "
+				"UBL export of this exact ERPNext invoice's line items."
+			),
+		},
+	)
+
+	return {"role": "Seller", "steps": steps, "summary": summary}
 
 
 def _wrap_step(fn, invoice_doctype, invoice_name):

@@ -29,15 +29,21 @@ into a place ERPNext can call it from, and wired up to real ERPNext data.
 2. **SuperPDP Invoices** page (`/app/super-pdp-invoices`) - lists ERPNext
    **Sales Invoices** and **Purchase Invoices** with a **"Test with
    SuperPDP"** button per row. Role is auto-detected:
-   - `Sales Invoice` -> your company is the **seller** -> runs the
-     seller pipeline (token -> company lookup -> generate test invoice
-     -> validate).
-   - `Purchase Invoice` -> your company is the **buyer** -> runs the
-     buyer pipeline (token -> list invoices visible to the buyer, with a
-     best-effort match against the ERPNext invoice number).
+   - `Sales Invoice` -> your company is the **seller** -> **"Test with
+     SuperPDP"** runs the seller pipeline (token -> company lookup ->
+     generate test invoice -> validate). Sales Invoice rows also get a
+     separate **"Send to SuperPDP"** button that calls function 07
+     directly (generates a fresh test invoice, then `POST
+     /v1.beta/invoices`) - a real send, so the UI asks for confirmation
+     first and shows the returned SuperPDP invoice id.
+   - `Purchase Invoice` -> your company is the **buyer** -> **"Test with
+     SuperPDP"** runs the buyer pipeline (token -> list invoices visible
+     to the buyer, with a best-effort match against the ERPNext invoice
+     number). There's no "Send" button here - a buyer doesn't send.
 
-   Every step is logged to **Super PDP Invoice Log**, linked back to the
-   ERPNext invoice, so results are fully auditable.
+   Every step (test or send) is logged to **Super PDP Invoice Log**,
+   linked back to the ERPNext invoice - sent invoices also store the
+   returned SuperPDP invoice id - so results are fully auditable.
 
 3. **SuperPDP Function Console** page (`/app/super-pdp-function-console`)
    - every SuperPDP function from the ZIP, individually testable:

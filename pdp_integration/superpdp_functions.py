@@ -198,7 +198,7 @@ def _to_log_text(value):
 	return str(value)[:100000]
 
 
-def _log(function_id, function_label, result, invoice_doctype=None, invoice=None, role=None, request_summary=None):
+def _log(function_id, function_label, result, invoice_doctype=None, invoice=None, role=None, request_summary=None, superpdp_invoice_id=None):
 	try:
 		frappe.get_doc(
 			{
@@ -213,6 +213,7 @@ def _log(function_id, function_label, result, invoice_doctype=None, invoice=None
 				"request_summary": request_summary,
 				"response": _to_log_text(result.get("response")),
 				"error": result.get("error"),
+				"superpdp_invoice_id": superpdp_invoice_id,
 				"executed_by": frappe.session.user,
 				"executed_on": now_datetime(),
 			}
@@ -424,14 +425,25 @@ def run_send_invoice(invoice_doctype=None, invoice=None):
 		headers={"Authorization": f"Bearer {token}", "Content-Type": "application/xml"},
 		data=xml.encode("utf-8"),
 	)
+	superpdp_invoice_id = None
 	if ok:
 		data = _safe_json(text)
 		if isinstance(data, dict) and data.get("id"):
 			_cache_set("uploaded_invoice", json.dumps(data))
+			superpdp_invoice_id = data.get("id")
 		result = _result(True, status, data)
 	else:
 		result = _result(False, status, _safe_json(text), err)
-	_log("07_send_invoice", "Send Invoice", result, invoice_doctype, invoice, "Seller", "POST /v1.beta/invoices")
+	_log(
+		"07_send_invoice",
+		"Send Invoice",
+		result,
+		invoice_doctype,
+		invoice,
+		"Seller",
+		"POST /v1.beta/invoices",
+		superpdp_invoice_id=superpdp_invoice_id,
+	)
 	return result
 
 
