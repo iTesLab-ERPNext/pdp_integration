@@ -155,7 +155,7 @@ def _party_xml(tag, party):
 		else ""
 	)
 	return f"""
-  <{tag} xmlns:cac="{CAC_NS}">
+  <cac:{tag} xmlns:cac="{CAC_NS}">
     <cac:Party xmlns:cac="{CAC_NS}">
       <cbc:EndpointID xmlns:cbc="{CBC_NS}" schemeID="0225">{_e(party['endpoint_id'])}</cbc:EndpointID>
       <cac:PostalAddress xmlns:cac="{CAC_NS}">
@@ -169,7 +169,7 @@ def _party_xml(tag, party):
         <cbc:CompanyID xmlns:cbc="{CBC_NS}" schemeID="0002">{_e(party['legal_company_id'])}</cbc:CompanyID>
       </cac:PartyLegalEntity>
     </cac:Party>
-  </{tag}>""".strip("\n")
+  </cac:{tag}>""".strip("\n")
 
 
 def _invoice_line_xml(idx, item, rate_percent):
