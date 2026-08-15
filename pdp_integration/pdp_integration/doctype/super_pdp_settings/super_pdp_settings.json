@@ -10,9 +10,13 @@
   "section_break_seller",
   "burgerqueen_client_id",
   "burgerqueen_client_secret",
+  "column_break_seller_ids",
+  "seller_siret",
   "section_break_buyer",
   "tricatel_client_id",
   "tricatel_client_secret",
+  "column_break_buyer_ids",
+  "default_buyer_siret",
   "section_break_help",
   "help_html"
  ],
@@ -53,6 +57,16 @@
    "label": "Seller Client Secret"
   },
   {
+   "fieldname": "column_break_seller_ids",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "14-digit SIRET of the ERPNext Company sending invoices. Used as the UBL routing identifiers (EndpointID scheme 0225, PartyLegalEntity CompanyID scheme 0002) when building a real invoice from ERPNext data. Required to send a real (non-sandbox) invoice.",
+   "fieldname": "seller_siret",
+   "fieldtype": "Data",
+   "label": "Seller SIRET"
+  },
+  {
    "fieldname": "section_break_buyer",
    "fieldtype": "Section Break",
    "label": "Buyer Credentials (Tricatel)"
@@ -70,13 +84,23 @@
    "label": "Buyer Client Secret"
   },
   {
+   "fieldname": "column_break_buyer_ids",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Fallback 14-digit SIRET used for the buyer when the ERPNext Customer record has no custom_siret field/value set.",
+   "fieldname": "default_buyer_siret",
+   "fieldtype": "Data",
+   "label": "Default Buyer SIRET"
+  },
+  {
    "fieldname": "section_break_help",
    "fieldtype": "Section Break"
   },
   {
    "fieldname": "help_html",
    "fieldtype": "HTML",
-   "options": "<p class=\"text-muted\">Credentials are stored encrypted on the server (Frappe's Password fieldtype, backed by __Auth) and are never included in any response sent to the browser. Get sandbox credentials at <a href=\"https://www.superpdp.tech\" target=\"_blank\" rel=\"noopener\">superpdp.tech</a>.</p>"
+   "options": "<p class=\"text-muted\">Credentials are stored encrypted on the server (Frappe's Password fieldtype, backed by __Auth) and are never included in any response sent to the browser. Get sandbox credentials at <a href=\"https://www.superpdp.tech\" target=\"_blank\" rel=\"noopener\">superpdp.tech</a>. SIRET fields are used only to build the UBL routing identifiers required by SuperPDP - they are not secret.</p>"
   }
  ],
  "issingle": 1,

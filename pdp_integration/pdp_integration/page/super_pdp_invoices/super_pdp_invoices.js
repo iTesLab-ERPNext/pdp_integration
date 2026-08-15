@@ -163,7 +163,7 @@ class SuperPDPInvoicesPage {
 	send_invoice(invoice, $row, $btn) {
 		frappe.confirm(
 			__(
-				"This will call SuperPDP's Send Invoice function (07_send_invoice.js - POST /v1.beta/invoices) as the seller for {0}. Continue?",
+				"This builds a real UBL invoice from {0}'s own customer, line items, and totals, and sends it to SuperPDP (07_send_invoice.js - POST /v1.beta/invoices) as the seller. Continue?",
 				[invoice.name]
 			),
 			() => this.do_send_invoice(invoice, $row, $btn)

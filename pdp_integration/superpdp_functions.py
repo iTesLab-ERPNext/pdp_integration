@@ -404,20 +404,15 @@ def run_list_buyer_invoices(invoice_doctype=None, invoice=None):
 # 07 - send invoice
 # ---------------------------------------------------------------------------
 
-@frappe.whitelist()
-def run_send_invoice(invoice_doctype=None, invoice=None):
-	xml = _cache_get("test_invoice_xml")
-	if not xml:
-		result = _result(False, None, None, "No cached test invoice XML. Run '04 Generate Test Invoice' first.")
-		_log("07_send_invoice", "Send Invoice", result, invoice_doctype, invoice, "Seller", "POST /v1.beta/invoices")
-		return result
-
+def _send_invoice_xml(xml):
+	"""Shared implementation: POST an arbitrary UBL invoice XML to
+	SuperPDP as the seller. Returns (ok, http_status, response_or_text, error, superpdp_invoice_id).
+	Used both by the sandbox-cached flow (run_send_invoice) and by the
+	real-ERPNext-data flow (run_send_custom_invoice)."""
 	try:
 		token = get_seller_token()
 	except SuperPDPError as exc:
-		result = _result(False, exc.http_status, None, str(exc))
-		_log("07_send_invoice", "Send Invoice", result, invoice_doctype, invoice, "Seller", "POST /v1.beta/invoices")
-		return result
+		return False, exc.http_status, None, str(exc), None
 
 	ok, status, text, err = do_request(
 		"POST",
@@ -431,9 +426,20 @@ def run_send_invoice(invoice_doctype=None, invoice=None):
 		if isinstance(data, dict) and data.get("id"):
 			_cache_set("uploaded_invoice", json.dumps(data))
 			superpdp_invoice_id = data.get("id")
-		result = _result(True, status, data)
-	else:
-		result = _result(False, status, _safe_json(text), err)
+		return True, status, data, None, superpdp_invoice_id
+	return False, status, _safe_json(text), err, None
+
+
+@frappe.whitelist()
+def run_send_invoice(invoice_doctype=None, invoice=None):
+	xml = _cache_get("test_invoice_xml")
+	if not xml:
+		result = _result(False, None, None, "No cached test invoice XML. Run '04 Generate Test Invoice' first.")
+		_log("07_send_invoice", "Send Invoice", result, invoice_doctype, invoice, "Seller", "POST /v1.beta/invoices")
+		return result
+
+	ok, status, response, err, superpdp_invoice_id = _send_invoice_xml(xml)
+	result = _result(ok, status, response, err)
 	_log(
 		"07_send_invoice",
 		"Send Invoice",
@@ -442,6 +448,27 @@ def run_send_invoice(invoice_doctype=None, invoice=None):
 		invoice,
 		"Seller",
 		"POST /v1.beta/invoices",
+		superpdp_invoice_id=superpdp_invoice_id,
+	)
+	return result
+
+
+@frappe.whitelist()
+def run_send_custom_invoice(xml, invoice_doctype=None, invoice=None, request_summary=None):
+	"""Same SuperPDP call as run_send_invoice (function 07), but for a
+	caller-supplied XML (e.g. a real UBL invoice built from an ERPNext
+	Sales Invoice by ubl_builder.build_invoice_xml) instead of the
+	cached sandbox test invoice."""
+	ok, status, response, err, superpdp_invoice_id = _send_invoice_xml(xml)
+	result = _result(ok, status, response, err)
+	_log(
+		"07_send_invoice",
+		"Send Invoice",
+		result,
+		invoice_doctype,
+		invoice,
+		"Seller",
+		request_summary or "POST /v1.beta/invoices (real ERPNext invoice data)",
 		superpdp_invoice_id=superpdp_invoice_id,
 	)
 	return result

@@ -32,10 +32,12 @@ into a place ERPNext can call it from, and wired up to real ERPNext data.
    - `Sales Invoice` -> your company is the **seller** -> **"Test with
      SuperPDP"** runs the seller pipeline (token -> company lookup ->
      generate test invoice -> validate). Sales Invoice rows also get a
-     separate **"Send to SuperPDP"** button that calls function 07
-     directly (generates a fresh test invoice, then `POST
-     /v1.beta/invoices`) - a real send, so the UI asks for confirmation
-     first and shows the returned SuperPDP invoice id.
+     separate **"Send to SuperPDP"** button that builds a real UBL
+     invoice from *that invoice's own* customer, line items, quantities,
+     prices, taxes and totals (see "Sending real invoice data" below)
+     and sends it via function 07 (`POST /v1.beta/invoices`) - a real
+     send, so the UI asks for confirmation first and shows the returned
+     SuperPDP invoice id.
    - `Purchase Invoice` -> your company is the **buyer** -> **"Test with
      SuperPDP"** runs the buyer pipeline (token -> list invoices visible
      to the buyer, with a best-effort match against the ERPNext invoice
@@ -142,18 +144,59 @@ ERPNext's `Sales Invoice` / `Purchase Invoice` doctypes.
 3. Open **SuperPDP Function Console** to exercise every SuperPDP
    function individually, or run the full recommended sequence.
 
+## Sending real invoice data
+
+**"Send to SuperPDP" on a Sales Invoice sends that invoice's own data -
+not the SuperPDP sandbox sample.** `ubl_builder.py` builds a UBL 2.1 /
+EN16931-shaped invoice document (the same shape as the sample
+`test_invoice.xml`, just populated from your data instead of it) pulling:
+
+- **Header**: real invoice number, issue date, due date, currency,
+  credit-note type code if `is_return` is set.
+- **Seller**: the ERPNext Company's name and Tax ID (VAT number), plus
+  the SIRET configured in Super PDP Settings.
+- **Buyer**: the ERPNext Customer's name and Tax ID (VAT number), plus a
+  SIRET read from a `custom_siret` field on the Customer if present,
+  else the "Default Buyer SIRET" configured in Super PDP Settings.
+- **Line items**: every Sales Invoice Item - real item name/description,
+  quantity, UOM (mapped to a UN/ECE unit code), unit price, and net
+  amount.
+- **Taxes**: lines are grouped by their actual VAT rate (from each
+  item's computed `item_tax_rate`, falling back to the invoice's overall
+  effective rate) into one `TaxSubtotal` per rate, the same structure
+  the sample invoice uses for its two VAT rates. The overall tax total
+  is reconciled against ERPNext's own `total_taxes_and_charges`.
+- **Totals**: `LineExtensionAmount` / `TaxExclusiveAmount` from
+  `net_total`, `TaxInclusiveAmount` / `PayableAmount` from `grand_total`.
+
+**Required configuration** (Super PDP Settings + master data), because
+ERPNext has no native SIRET field and PDP routing needs one:
+
+| Field | Where | Required for |
+|---|---|---|
+| Seller SIRET | Super PDP Settings | every send |
+| Company Tax ID | Company master (`tax_id`) | every send |
+| Buyer SIRET | Customer's `custom_siret` field, or Default Buyer SIRET in Super PDP Settings | every send |
+
+If any of these is missing, `build_invoice_xml()` raises a clear,
+specific error (which SuperPDP Invoices shows as a failed "Build UBL
+Invoice from ERPNext Data" step) instead of silently sending a
+placeholder value - so you always know exactly what to fix.
+
+`SuperPDP Function Console`'s individual "07 Send Invoice" test button
+is unchanged and still sends the cached sandbox test invoice (from "04
+Generate Test Invoice") - that console is for exercising the raw
+SuperPDP API generically, independent of any specific ERPNext invoice.
+
 ## Notes on scope
 
-The SuperPDP functions in the original ZIP are sandbox/test endpoints
-built around `generate_test_invoice` (a server-generated UBL sample) -
-they are not a UBL exporter for arbitrary invoice data. "Test with
-SuperPDP" on a real ERPNext invoice therefore verifies **connectivity
-and the correct role-based flow for that invoice** (seller vs buyer)
-using the SuperPDP sandbox test invoice, and links the result to that
-ERPNext invoice for audit purposes; it does not yet transform the
-ERPNext invoice's own line items into a UBL document. The module is
-structured (`pdp_client.py` / `superpdp_functions.py` / `invoices.py`)
-so a real UBL exporter can be dropped in later without touching the UI.
+"Test with SuperPDP" still uses the SuperPDP sandbox `generate_test_invoice`
+for connectivity/flow checks (token, company lookup, validate) - it's a
+quick health check, not a send. "Send to SuperPDP" is the one that uses
+real ERPNext invoice data (see "Sending real invoice data" above). The
+buyer-side flow still only *lists* invoices visible to the buyer (that's
+what functions 06/08 do) - there is no SuperPDP function for a buyer to
+send anything.
 
 ## App structure
 
@@ -162,7 +205,8 @@ pdp_integration/
   hooks.py
   pdp_client.py            # ported config.js (endpoint + token logic)
   superpdp_functions.py    # ported 01..10 *.js scripts, whitelisted
-  invoices.py               # ERPNext invoice list + role-based test pipeline
+  ubl_builder.py            # builds a real UBL invoice XML from a Sales Invoice
+  invoices.py               # ERPNext invoice list + role-based test/send pipeline
   pdp_integration/
     doctype/
       super_pdp_settings/       # single doctype, encrypted credentials
