@@ -53,6 +53,37 @@ def seed_all():
 
 
 @frappe.whitelist()
+def get_seed_status():
+	"""Tells the UI whether default config exists yet, so it can offer to
+	create it on the spot for sites where the app was installed before
+	this feature existed (after_install only runs on a fresh install -
+	after_migrate and this on-demand call cover upgrades too)."""
+	template_name = frappe.db.get_value("Super PDP XML Template", {"is_default": 1}, "name")
+	mapping_count = 0
+	if template_name:
+		mapping_count = frappe.db.count("Super PDP XML Field Mapping", {"template": template_name})
+	return {
+		"template": template_name,
+		"mapping_count": mapping_count,
+		"is_seeded": bool(template_name and mapping_count),
+		"expected_rows": len(DEFAULT_MAPPING_ROWS),
+	}
+
+
+@frappe.whitelist()
+def seed_defaults():
+	"""Idempotent: creates the default template/mapping if missing, does
+	nothing (keeps admin edits) if they already exist. Safe to call from
+	the UI at any time - unlike reset_default_mapping(), this never
+	deletes anything."""
+	frappe.only_for("System Manager")
+	template_name = seed_all()
+	status = get_seed_status()
+	status["template"] = template_name
+	return status
+
+
+@frappe.whitelist()
 def reset_default_mapping():
 	"""Deletes all mapping rows for the default template and reseeds them
 	from xml_mapping_defaults.DEFAULT_MAPPING_ROWS, discarding any local

@@ -180,6 +180,15 @@ Customer / Sales Invoice, and you get exactly what was asked for:
 - **Reset Mapping to Defaults** (menu): discards local edits and
   reseeds from the app's shipped defaults if you want to start over.
 
+**On sites where `pdp_integration` was already installed** before this
+feature existed: the default template/mapping are created automatically
+on the next `bench migrate` (via `after_migrate`), and the page itself
+detects an unseeded site and offers a one-click **Create Default XML
+Configuration** button too - no reinstall needed either way. Both paths
+are idempotent (`xml_seed.seed_defaults()` / `seed_all()`): they only
+create what's missing and never touch mapping rows you've already
+edited - only the explicit **Reset Mapping to Defaults** action does that.
+
 ### How the mapping works
 
 - **`Super PDP XML Template`** stores the reference XML (seeded from

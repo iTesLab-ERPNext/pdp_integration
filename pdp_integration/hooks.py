@@ -23,6 +23,7 @@ app_include_css = "/assets/pdp_integration/css/pdp_integration.css"
 # Installation
 # ------------
 after_install = "pdp_integration.setup.install.after_install"
+after_migrate = "pdp_integration.setup.install.after_migrate"
 
 # Fixtures
 # --------

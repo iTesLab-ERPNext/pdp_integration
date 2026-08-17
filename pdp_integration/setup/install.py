@@ -11,13 +11,7 @@ def after_install():
 		doc.insert(ignore_permissions=True)
 		frappe.db.commit()
 
-	# Seed the default "Super PDP XML Template" + its "Super PDP XML Field
-	# Mapping" rows so the XML Configuration page has something to show
-	# (and "Send to SuperPDP" has a mapping to resolve against) right after
-	# install, without requiring a manual setup step.
-	from pdp_integration.xml_seed import seed_all
-
-	seed_all()
+	_seed_xml_defaults()
 
 	# The "PDP Integration" Workspace ships as a standard doc under
 	# pdp_integration/pdp_integration/workspace/ and is synced into the
@@ -25,3 +19,24 @@ def after_install():
 	# desk cache so the sidebar picks it up immediately without requiring
 	# a manual "Reload" from the user.
 	frappe.clear_cache()
+
+
+def after_migrate():
+	"""after_install only runs on a brand-new `bench install-app`. Sites
+	that already had pdp_integration installed before the XML
+	configuration feature existed only ever run `bench migrate` (which
+	creates the new doctypes/pages from this app's files, but does not
+	call after_install again) - so the default XML template/mapping must
+	also be (re-)ensured here. seed_all() is idempotent: it only creates
+	what's missing and never touches rows an admin has already edited."""
+	_seed_xml_defaults()
+
+
+def _seed_xml_defaults():
+	# Seed the default "Super PDP XML Template" + its "Super PDP XML Field
+	# Mapping" rows so the XML Configuration page has something to show
+	# (and "Send to SuperPDP" has a mapping to resolve against) without
+	# requiring a manual setup step, on both fresh installs and upgrades.
+	from pdp_integration.xml_seed import seed_all
+
+	seed_all()

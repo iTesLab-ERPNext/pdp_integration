@@ -35,6 +35,89 @@ class SuperPDPXMLConfigPage {
 
 		this.setup_selectors();
 		this.build_layout();
+		this.check_seed_status();
+	}
+
+	check_seed_status() {
+		frappe.call({ method: "pdp_integration.xml_seed.get_seed_status" }).then((r) => {
+			const status = r.message || {};
+			if (status.is_seeded) {
+				this.render_default_mapping();
+			} else {
+				this.render_not_seeded(status);
+			}
+		});
+	}
+
+	render_not_seeded(status) {
+		this.$body.find(".pdp-empty-state").html(`
+			<div style="max-width:520px; margin: 0 auto;">
+				<div class="indicator orange" style="margin-bottom:10px;">${__("No default XML configuration yet")}</div>
+				<p class="text-muted">${__(
+					"The default XML template and field mapping haven't been created on this site yet " +
+					"(this can happen after an app upgrade). Create them now, then select a Sales Invoice above."
+				)}</p>
+				<button class="btn btn-sm btn-primary btn-seed-defaults">${__("Create Default XML Configuration")}</button>
+			</div>
+		`).show();
+		this.$body.find(".pdp-content").hide();
+		this.$body.find(".btn-seed-defaults").on("click", () => {
+			frappe.call({ method: "pdp_integration.xml_seed.seed_defaults" }).then(() => {
+				frappe.show_alert({ message: __("Default XML configuration created"), indicator: "green" });
+				this.render_default_mapping();
+			});
+		});
+	}
+
+	render_default_mapping() {
+		// Shows the mapping *structure* (no live invoice values yet) so
+		// there's always something to inspect, even before a Sales
+		// Invoice is selected.
+		frappe.call({ method: "pdp_integration.xml_mapper.get_mapping_table" }).then((r) => {
+			const rows = r.message || [];
+			this.$body.find(".pdp-empty-state").html(`
+				<div style="text-align:left;">
+					<div class="text-muted small" style="margin-bottom:8px;">
+						${__("Default field mapping ({0} fields). Select a Sales Invoice above to resolve live values.", [rows.length])}
+					</div>
+					<table class="table table-bordered table-sm pdp-mapping-table">
+						<thead>
+							<tr>
+								<th>${__("XML Field")}</th>
+								<th>${__("Scope")}</th>
+								<th>${__("ERPNext Source")}</th>
+								<th>${__("Transformation")}</th>
+								<th>${__("Required")}</th>
+							</tr>
+						</thead>
+						<tbody>
+							${rows
+								.map(
+									(row) => `
+								<tr>
+									<td><code>${frappe.utils.escape_html(row.xml_path)}</code></td>
+									<td class="text-muted small">${frappe.utils.escape_html(row.scope || "Invoice")}</td>
+									<td>${
+										row.transformation === "Static Value"
+											? `<span class="text-muted">${__("static")}: ${frappe.utils.escape_html(row.static_value || "")}</span>`
+											: row.transformation === "Computed by Engine"
+											? `<span class="text-muted">${__("computed")}</span>`
+											: row.erpnext_doctype
+											? frappe.utils.escape_html(`${row.erpnext_doctype}.${row.erpnext_field}`)
+											: `<span class="text-muted">${__("unmapped")}</span>`
+									}</td>
+									<td class="text-muted small">${frappe.utils.escape_html(row.transformation || "None")}</td>
+									<td>${row.required ? "✓" : ""}</td>
+								</tr>
+							`
+								)
+								.join("")}
+						</tbody>
+					</table>
+				</div>
+			`).show();
+			this.$body.find(".pdp-content").hide();
+		});
 	}
 
 	setup_selectors() {
@@ -120,8 +203,8 @@ class SuperPDPXMLConfigPage {
 	}
 
 	render_empty_state() {
-		this.$body.find(".pdp-empty-state").show();
 		this.$body.find(".pdp-content").hide();
+		this.render_default_mapping();
 	}
 
 	load_invoice(invoice_name) {
