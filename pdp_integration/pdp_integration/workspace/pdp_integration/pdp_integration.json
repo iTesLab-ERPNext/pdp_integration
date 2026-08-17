@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\": \"header_pdp\", \"type\": \"header\", \"data\": {\"text\": \"PDP Integration\", \"level\": 2, \"col\": 12}}, {\"id\": \"para_pdp\", \"type\": \"paragraph\", \"data\": {\"text\": \"Configure SuperPDP credentials, test ERPNext Sales/Purchase Invoices against the SuperPDP sandbox, and run every SuperPDP function individually.\", \"col\": 12}}, {\"id\": \"spacer_pdp_1\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"shortcuts_header_pdp\", \"type\": \"header\", \"data\": {\"text\": \"Your Shortcuts\", \"level\": 4, \"col\": 12}}, {\"id\": \"shortcut_settings\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Super PDP Settings\", \"col\": 3}}, {\"id\": \"shortcut_invoices\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"SuperPDP Invoices\", \"col\": 3}}, {\"id\": \"shortcut_console\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"SuperPDP Function Console\", \"col\": 3}}, {\"id\": \"shortcut_log\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Super PDP Invoice Log\", \"col\": 3}}]",
+ "content": "[{\"id\": \"header_pdp\", \"type\": \"header\", \"data\": {\"text\": \"PDP Integration\", \"level\": 2, \"col\": 12}}, {\"id\": \"para_pdp\", \"type\": \"paragraph\", \"data\": {\"text\": \"Configure SuperPDP credentials, test and send ERPNext Sales/Purchase Invoices, inspect the ERPNext -> XML field mapping, and run every SuperPDP function individually.\", \"col\": 12}}, {\"id\": \"spacer_pdp_1\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"shortcuts_header_pdp\", \"type\": \"header\", \"data\": {\"text\": \"Your Shortcuts\", \"level\": 4, \"col\": 12}}, {\"id\": \"shortcut_settings\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Super PDP Settings\", \"col\": 3}}, {\"id\": \"shortcut_invoices\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"SuperPDP Invoices\", \"col\": 3}}, {\"id\": \"shortcut_xml_config\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"SuperPDP XML Configuration\", \"col\": 3}}, {\"id\": \"shortcut_console\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"SuperPDP Function Console\", \"col\": 3}}, {\"id\": \"shortcut_mapping\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Super PDP XML Field Mapping\", \"col\": 3}}, {\"id\": \"shortcut_log\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Super PDP Invoice Log\", \"col\": 3}}]",
  "creation": "2026-01-01 00:00:00.000000",
  "custom_blocks": [],
  "doctype": "Workspace",
@@ -83,6 +83,20 @@
   },
   {
    "doctype": "Workspace Shortcut",
+   "label": "SuperPDP XML Configuration",
+   "link_to": "super-pdp-xml-configuration",
+   "type": "Page",
+   "doc_view": "",
+   "icon": "octicon octicon-code",
+   "color": "Purple",
+   "stats_filter": "{}",
+   "idx": 3,
+   "parent": "PDP Integration",
+   "parentfield": "shortcuts",
+   "parenttype": "Workspace"
+  },
+  {
+   "doctype": "Workspace Shortcut",
    "label": "SuperPDP Function Console",
    "link_to": "super-pdp-function-console",
    "type": "Page",
@@ -90,7 +104,21 @@
    "icon": "octicon octicon-pulse",
    "color": "Green",
    "stats_filter": "{}",
-   "idx": 3,
+   "idx": 4,
+   "parent": "PDP Integration",
+   "parentfield": "shortcuts",
+   "parenttype": "Workspace"
+  },
+  {
+   "doctype": "Workspace Shortcut",
+   "label": "Super PDP XML Field Mapping",
+   "link_to": "Super PDP XML Field Mapping",
+   "type": "DocType",
+   "doc_view": "List",
+   "icon": "octicon octicon-list-ordered",
+   "color": "Grey",
+   "stats_filter": "{}",
+   "idx": 5,
    "parent": "PDP Integration",
    "parentfield": "shortcuts",
    "parenttype": "Workspace"
@@ -104,7 +132,7 @@
    "icon": "octicon octicon-list-unordered",
    "color": "Grey",
    "stats_filter": "{}",
-   "idx": 4,
+   "idx": 6,
    "parent": "PDP Integration",
    "parentfield": "shortcuts",
    "parenttype": "Workspace"

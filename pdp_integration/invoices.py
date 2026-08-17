@@ -27,7 +27,7 @@ from pdp_integration.superpdp_functions import (
 	run_list_buyer_invoices,
 	run_send_custom_invoice,
 )
-from pdp_integration.ubl_builder import build_invoice_xml
+from pdp_integration.xml_mapper import render_invoice_xml as build_invoice_xml
 
 INVOICE_DOCTYPES = ("Sales Invoice", "Purchase Invoice")
 
