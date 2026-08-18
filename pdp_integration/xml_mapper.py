@@ -522,7 +522,7 @@ def _party_xml(tag, resolved, prefix):
 	)
 
 	return f"""
-  <{tag} xmlns:cac="{CAC_NS}">
+  <cac:{tag} xmlns:cac="{CAC_NS}">
     <cac:Party xmlns:cac="{CAC_NS}">
       <cbc:EndpointID xmlns:cbc="{CBC_NS}" schemeID="{_e(endpoint_scheme)}">{_e(endpoint_id)}</cbc:EndpointID>
       {party_identification_xml}
@@ -537,7 +537,7 @@ def _party_xml(tag, resolved, prefix):
         <cbc:CompanyID xmlns:cbc="{CBC_NS}" schemeID="{_e(legal_scheme)}">{_e(legal_id)}</cbc:CompanyID>
       </cac:PartyLegalEntity>
     </cac:Party>
-  </{tag}>""".strip("\n")
+  </cac:{tag}>""".strip("\n")
 
 
 def _delivery_xml(resolved):
